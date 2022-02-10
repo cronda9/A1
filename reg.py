@@ -16,7 +16,7 @@ def main():
     parser.add_argument('-t', type = str, help = 'show only those classes whose course title contains title', action = 'store', dest='title')
 
     args = parser.parse_args()
-    print(args)
+    print(args + " ")
 
     dept = args.dept
     area = args.area
