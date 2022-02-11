@@ -5,6 +5,7 @@ from contextlib import closing
 from sqlite3 import connect
 import textwrap
 import argparse
+from time import perf_counter_ns
 from tkinter.tix import Select
 from turtle import title
 from types import ClassMethodDescriptorType
@@ -53,14 +54,36 @@ def main():
                 SELECT classes.courseid, classes.days, classes.starttime, classes.endtime, 
                        classes.bldg, classes.roomnum,
                        crosslistings.dept, crosslistings.coursenum,
-                       courses.area, courses.title, courses.descrip, courses.prereqs
-                FROM classes, crosslistings, courses, coursesprofs, profs
+                       courses.area, courses.title, courses.descrip, courses.prereqs,
+                       profs.profname
+                FROM classes, crosslistings, courses, profs, coursesprofs
                 WHERE classes.courseid = (SELECT classes.courseid 
                                          FROM classes
-                                         WHERE classes.classid = 9012) 
-                AND courses.courseid = classes.courseid;
-                AND crosslistings.courseid = classes.courseid;
-                AND coursesprofs.courseid = classes.courseid
+                                         WHERE classes.classid = 10188) 
+                AND courses.courseid = (SELECT classes.courseid 
+                                         FROM classes
+                                         WHERE classes.classid = 10188) 
+                AND crosslistings.courseid = (SELECT classes.courseid 
+                                         FROM classes
+                                         WHERE classes.classid = 10188);
+
+
+                SELECT profs.profname
+                FROM profs
+                WHERE profs.profid = (SELECT coursesprofs.profid 
+                                     FROM coursesprofs
+                                     WHERE coursesprofs.courseid = (SELECT classes.courseid 
+                                                                   FROM classes
+                                                                   WHERE classes.classid = 10188));
+
+                                        
+                SELECT profs.profname
+                from classes, 
+                
+
+                AND coursesprofs.courseid = (SELECT classes.courseid 
+                                         FROM classes
+                                         WHERE classes.classid = 9012);
                 AND profs.profid = (SELECT coursesprofs.profid
                                     FROM coursesprofs
                                     WHERE coursesprofs.courseid = 9012);
