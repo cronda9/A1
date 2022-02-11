@@ -1,13 +1,17 @@
+from socket import create_server
 from sys import argv, stderr, exit
 from contextlib import closing
 from sqlite3 import connect
 import textwrap
 import argparse
+from turtle import title
+from xml.etree.ElementTree import C14NWriterTarget
 
-DATABASE_URL = "SOMETHING"
+DATABASE_URL = "file:reg.sqlite?mode=rwc"
 
 def main():
-
+    tags = []
+    
     parser = argparse.ArgumentParser(description='Register application: show overviews of classes', allow_abbrev=False)
 
     parser.add_argument('-d', type = str, help = 'show only those classes whose department contains dept', action = 'store', dest='dept')
@@ -15,60 +19,59 @@ def main():
     parser.add_argument('-a', type = str, help = 'show only those classes whose distrib area contains area', action = 'store', dest='area')
     parser.add_argument('-t', type = str, help = 'show only those classes whose course title contains title', action = 'store', dest='title')
 
-    args = parser.parse_args()
-    print(args + " ")
-
-    dept = args.dept
-    area = args.area
-    num = args.num
-    title = args.title
+    dept = parser.parse_args().dept
+    num = parser.parse_args().num
+    area = parser.parse_args().area
+    title = parser.parse_args().title
 
     try:
         with connect(DATABASE_URL, isolation_level=None, uri=True) as connection:
-
             with closing(connection.cursor()) as cursor:
-                used = False
-                arg = []
-                stmt_str = "SELECT classid, dept, coursenum, area, title "
-                stmt_str += "FROM classes, crosslistings, courses "
+
+                stmt =  "SELECT classes.classid, "
+                stmt +=         "crosslistings.dept, " 
+                stmt +=         "crosslistings.coursenum, "  
+                stmt +=         "courses.area, " 
+                stmt +=         "courses.title " 
+                stmt += "FROM crosslistings, courses, classes "  
+                stmt += "WHERE courses.courseid = crosslistings.courseid "  
+                stmt += "AND classes.courseid = crosslistings.courseid "
 
                 if dept:
-                    arg.append('%' + dept.lower() + '%')
-                    if used:
-                        stmt_str += "AND crosslistings.dept.lower() = ? "
-                    else:
-                        stmt_str += "WHERE crosslistings.dept.lower() = ? "
-                        used = True
-                if area:
-                    arg.append('%' + area.lower() + '%')
-                    if used:
-                        stmt_str += "AND courses.area.lower() = ? "
-                    else:
-                        stmt_str += "WHERE courses.area.lower() = ? "
-                        used = True
-                if title:
-                    arg.append('%' + title.lower() + '%')
-                    if used:
-                        stmt_str += "AND courses.title.lower() like ? "
-                    else:
-                        stmt_str += "WHERE courses.title.lower() = ? "
-                        used = True
+                    tags.append("%" + dept.lower() + "%")
+                    stmt += "AND lower(crosslistings.dept) like ? "
+
                 if num:
-                    arg.append('%' + num.lower() + '%')
-                    if used:
-                        stmt_str += "AND crosslistings.coursenum.lower() = ? "
-                    else:
-                        stmt_str += "WHERE crosslistings.coursenum.lower() = ? "
-                        used = True
+                    tags.append("%" + num.lower() + "%")
+                    stmt += "AND lower(crosslistings.coursenum) like ? "
 
-                stmt_str += "ORDER BY dept, coursenum, classid"
-                print("STATE",stmt_str)
-                print("ARGS",arg)
+                if area:
+                    tags.append("%" + area.lower() + "%")
+                    stmt += "AND lower(courses.area) like ? "
 
+                if title:
+                    tags.append("%" + title.lower() + "%")
+                    stmt += "AND lower(courses.title) like ? "
 
+                stmt += "ORDER BY crosslistings.dept, crosslistings.coursenum, classes.classid;"
+
+                #print(stmt)
+
+                cursor.execute(stmt, tags)
+
+                row = ["-----", "----", "------", "----", "----"]
+
+                print("{0:5}  {1:4}  {2:6}  {3:4}  {4}".format("ClsId", "Dept", "CrsNum", "Area", "Title"))
+                while row:
+                    print("{0:>5}  {1:>4}  {2:>6}  {3:>4}  {4}".format(row[0], row[1], row[2], row[3], row[4]))
+                    row = cursor.fetchone()
+    
     except Exception as ex:
         print(ex, file=stderr)
         exit(1)
 
+if __name__ == "__main__":
+    main()
 
-main()
+
+
