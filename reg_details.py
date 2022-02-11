@@ -22,7 +22,7 @@ def main():
     class_id = parser.parse_args().classid
 
 
-    #courseid, days, starttime, endtime, bldg, roomnum, 
+    #courseid, daysgit , starttime, endtime, bldg, roomnum, 
     #dept(s), coursenum(s), 
     #area, title, 
     #descrip, prereqs, and profname(s)
