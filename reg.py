@@ -55,8 +55,6 @@ def main():
 
                 stmt += "ORDER BY crosslistings.dept, crosslistings.coursenum, classes.classid;"
 
-                #print(stmt)
-
                 cursor.execute(stmt, tags)
 
                 row = ["-----", "----", "------", "----", "----"]
