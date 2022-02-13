@@ -14,21 +14,29 @@ from xml.etree.ElementTree import C14NWriterTarget
 DATABASE_URL = "file:reg.sqlite?mode=rwc"
 
 def main():
+    tags = []
     
-    parser = argparse.ArgumentParser(description='Registrar application: show details about a class', allow_abbrev=False)
+    parser = argparse.ArgumentParser(description='Register application: show overviews of classes', allow_abbrev=False)
 
-    parser.add_argument('classid', metavar='classid',type = int, help = 'the id of the class whose details should be shown')
+    parser.add_argument('-d', type = str, help = 'show only those classes whose department contains dept', action = 'store', dest='c_id')
 
-    class_id = parser.parse_args().classid
+    class_id = parser.parse_args().c_id
+
+    #courseid, days, starttime, endtime, bldg, roomnum, 
+    # dept(s), coursenum(s), 
+    # area, title, 
+    # descrip, prereqs, and profname(s)
 
     try:
         with connect(DATABASE_URL, isolation_level=None, uri=True) as connection:
             with closing(connection.cursor()) as cursor:
+
                 stmt = "SELECT courseid, days, starttime, endtime, bldg, roomnum FROM classes where classes.classid = ? "
                 class_info = cursor.execute(stmt, [class_id]).fetchall()
 
                 if not class_info:
-                    raise Exception("reg_details.py: no class with classid " + str(class_id) + " exists")
+                    print("No Such Class")
+                    exit(1)
                 
                 class_info = class_info[0]
 
@@ -75,10 +83,15 @@ def main():
                     for row in profs_info:
                         print('Professor:', row[0])
 
+
+
+
+
+
+
     except Exception as ex:
         print(ex, file=stderr)
         exit(1)
 
 if __name__ == "__main__":
     main()
-
