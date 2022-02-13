@@ -1,15 +1,8 @@
-from multiprocessing.dummy import JoinableQueue
-from socket import create_server
-from sys import argv, stderr, exit
+from sys import  stderr, exit
 from contextlib import closing
 from sqlite3 import connect
 import textwrap
 import argparse
-from time import perf_counter_ns
-from tkinter.tix import Select
-from turtle import title
-from types import ClassMethodDescriptorType
-from xml.etree.ElementTree import C14NWriterTarget
 
 DATABASE_URL = "file:reg.sqlite?mode=rwc"
 
