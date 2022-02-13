@@ -23,9 +23,7 @@ def main():
     class_id = parser.parse_args().classid
 
 
-<<<<<<< HEAD
     #courseid, daysgit , starttime, endtime, bldg, roomnum, 
-=======
     #courseid, days, starttime, endtime, bldg, roomnum, 
     # dept(s), coursenum(s), 
     # area, title, 
@@ -122,7 +120,6 @@ def main():
 ##### resolved merge conflict w this so everything commented below is not relevant but I dont want to delete it in case its different from above #########
                         
     #courseid, days, starttime, endtime, bldg, roomnum, 
->>>>>>> b30220a16c1ad903a7fba3ddd3670846e44a563d
     #dept(s), coursenum(s), 
     #area, title, 
     #descrip, prereqs, and profname(s)
@@ -215,4 +212,3 @@ def main():
 
 if __name__ == "__main__":
    main()
-

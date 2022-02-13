@@ -21,10 +21,7 @@ def main():
     area = parser.parse_args().a
     title = parser.parse_args().t
 
-    title = title.replace('%', r'%')
-    title = title.replace('_', r'_')
-
-    try:
+    try: 
         with connect(DATABASE_URL, isolation_level=None, uri=True) as connection:
             with closing(connection.cursor()) as cursor:
 
@@ -38,20 +35,22 @@ def main():
                 stmt += "AND classes.courseid = crosslistings.courseid "
 
                 if dept:
+                    dept = dept.replace('%', r'\%')
+                    dept = dept.replace('_', r'\_')
                     tags.append("%" + dept.lower() + "%")
-                    stmt += "AND lower(crosslistings.dept) like ? "
+                    stmt += "AND lower(crosslistings.dept) like ? ESCAPE '\\'"
 
                 if num:
                     tags.append("%" + num.lower() + "%")
-                    stmt += "AND lower(crosslistings.coursenum) like ? "
+                    stmt += "AND lower(crosslistings.coursenum) like ? ESCAPE '\\'"
 
                 if area:
                     tags.append("%" + area.lower() + "%")
-                    stmt += "AND lower(courses.area) like ? "
+                    stmt += "AND lower(courses.area) like ? ESCAPE '\\'"
 
                 if title:
                     tags.append("%" + title.lower() + "%")
-                    stmt += "AND lower(courses.title) like ? "
+                    stmt += "AND lower(courses.title) like ? ESCAPE '\\'"
 
                 stmt += "ORDER BY crosslistings.dept, crosslistings.coursenum, classes.classid;"
 
